@@ -4,7 +4,7 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 public class Percolation {
 
     private final int[][] grid;
-    private final int[][] openSites;
+    private final boolean[][] openSites;
     private final int sitesByRow;
     private int openCounter;
     //    private QuickFindUF unionFind;
@@ -20,7 +20,7 @@ public class Percolation {
 //        this.unionFind = new QuickFindUF((n * n) + 2);
         this.unionFind = new WeightedQuickUnionUF((n * n) + 2);
         grid = new int[n][n];
-        openSites = new int[n][n];
+        openSites = new boolean[n][n];
 
         int siteNumber = 0;
         for (int i = 0; i < n; i++) {
@@ -34,7 +34,6 @@ public class Percolation {
                     unionFind.union((n * n) + 1, this.grid[i][j]);
 //                    unionFind.union( this.grid[i][j], (n * n) + 1);
                 }
-                openSites[i][j] = 0;
                 siteNumber++;
             }
         }
@@ -64,25 +63,25 @@ public class Percolation {
         if (!this.isOpen(row + 1, col + 1)) {
             this.openCounter++;
         }
-        this.openSites[row][col] = 1;
+        this.openSites[row][col] = true;
 
         // top
-        if (row - 1 >= 0 && this.openSites[row - 1][col] == 1) {
+        if (row - 1 >= 0 && this.openSites[row - 1][col]) {
             unionFind.union(this.grid[row][col], this.grid[row - 1][col]);
         }
 
         // bottom
-        if (row + 1 < this.sitesByRow && this.openSites[row + 1][col] == 1) {
+        if (row + 1 < this.sitesByRow && this.openSites[row + 1][col]) {
             unionFind.union(this.grid[row][col], this.grid[row + 1][col]);
         }
 
         // left
-        if (col - 1 >= 0 && this.openSites[row][col - 1] == 1) {
+        if (col - 1 >= 0 && this.openSites[row][col - 1]) {
             unionFind.union(this.grid[row][col], this.grid[row][col - 1]);
         }
 
         // right
-        if (col + 1 < this.sitesByRow && this.openSites[row][col + 1] == 1) {
+        if (col + 1 < this.sitesByRow && this.openSites[row][col + 1]) {
             unionFind.union(this.grid[row][col], this.grid[row][col + 1]);
         }
     }
@@ -92,7 +91,7 @@ public class Percolation {
         col = updateIndex(col);
         isOutOfRange(row, col);
 
-        return this.openSites[row][col] == 1;
+        return this.openSites[row][col];
     }
 
     public boolean isFull(int row, int col) {
@@ -120,15 +119,20 @@ public class Percolation {
 
     // test client (optional)
     public static void main(String[] args) {
-        int n = 10;
+        int n = 5;
         System.out.println("Length: " + n);
         Percolation percolation = new Percolation(n);
 
         int openedCounter = 0;
-        while (openedCounter < 80) {
-            int row = StdRandom.uniform(percolation.sitesByRow);
-            int col = StdRandom.uniform(percolation.sitesByRow);
+        while (openedCounter < 100) {
+            int row = StdRandom.uniform(1, percolation.sitesByRow + 1);
+            int col = StdRandom.uniform(1, percolation.sitesByRow + 1);
             percolation.open(row, col);
+
+            if (percolation.numberOfOpenSites() == 22) {
+                System.out.println("Is open:" + percolation.isOpen(3, 2));
+                System.out.println("Percolates after 18: " + percolation.percolates());
+            }
             openedCounter++;
         }
 
